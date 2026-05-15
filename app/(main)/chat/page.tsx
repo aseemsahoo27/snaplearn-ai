@@ -3,14 +3,18 @@
 import {
   useEffect,
   useRef,
-  useState
+  useState,
 } from "react";
 
 import ReactMarkdown from "react-markdown";
 
 import {
   MessageSquarePlus,
-  Trash2
+  Trash2,
+  LayoutDashboard,
+  Sparkles,
+  BrainCircuit,
+  Presentation,
 } from "lucide-react";
 
 import PageHeader from "@/components/PageHeader";
@@ -28,310 +32,207 @@ type ChatSession = {
 
 export default function ChatPage() {
 
-  const defaultMessages = [
-    {
-      role: "ai",
-      text: "Hello 👋 How can I help you today?"
-    }
-  ];
+  const [input, setInput] =
+    useState("");
+
+  const [messages, setMessages] =
+    useState<Message[]>([
+      {
+        role: "assistant",
+        text:
+          "Hello 👋 How can I help you today?",
+      },
+    ]);
 
   const [sessions, setSessions] =
     useState<ChatSession[]>([]);
 
-  const [currentChatId, setCurrentChatId] =
-    useState<number | null>(null);
-
-  const [message, setMessage] =
-    useState("");
-
-  const [loading, setLoading] =
-    useState(false);
-
-  const bottomRef =
+  const messagesEndRef =
     useRef<HTMLDivElement | null>(null);
 
-  // LOAD SAVED SESSIONS
   useEffect(() => {
 
-    const savedSessions =
-      localStorage.getItem(
-        "snaplearn-sessions"
-      );
-
-    if (savedSessions) {
-
-      const parsed =
-        JSON.parse(savedSessions);
-
-      setSessions(parsed);
-
-      setCurrentChatId(parsed[0]?.id);
-
-    } else {
-
-      const firstChat = {
-        id: Date.now(),
-        title: "New Chat",
-        messages: defaultMessages,
-      };
-
-      setSessions([firstChat]);
-
-      setCurrentChatId(firstChat.id);
-    }
-
-  }, []);
-
-  // SAVE SESSIONS
-  useEffect(() => {
-
-    localStorage.setItem(
-      "snaplearn-sessions",
-      JSON.stringify(sessions)
-    );
-
-  }, [sessions]);
-
-  // AUTO SCROLL
-  useEffect(() => {
-
-    bottomRef.current?.scrollIntoView({
+    messagesEndRef.current?.scrollIntoView({
       behavior: "smooth",
     });
 
-  }, [sessions]);
+  }, [messages]);
 
-  const currentChat =
-    sessions.find(
-      (session) =>
-        session.id === currentChatId
-    );
+  const handleSend = async () => {
 
-  // CREATE NEW CHAT
-  const createNewChat = () => {
+    if (!input.trim()) return;
 
-    const newChat = {
-      id: Date.now(),
-      title: "New Chat",
-      messages: defaultMessages,
+    const userMessage: Message = {
+      role: "user",
+      text: input,
     };
 
-    setSessions((prev) => [
-      newChat,
-      ...prev
+    setMessages((prev) => [
+      ...prev,
+      userMessage,
     ]);
 
-    setCurrentChatId(newChat.id);
-  };
+    const currentInput = input;
 
-  // DELETE CURRENT CHAT
-  const deleteChat = () => {
-
-    if (!currentChatId) return;
-
-    const updated =
-      sessions.filter(
-        (session) =>
-          session.id !== currentChatId
-      );
-
-    if (updated.length === 0) {
-
-      const freshChat = {
-        id: Date.now(),
-        title: "New Chat",
-        messages: defaultMessages,
-      };
-
-      setSessions([freshChat]);
-
-      setCurrentChatId(freshChat.id);
-
-      return;
-    }
-
-    setSessions(updated);
-
-    setCurrentChatId(updated[0].id);
-  };
-
-  const sendMessage = async () => {
-
-    if (
-      !message.trim() ||
-      !currentChat
-    ) return;
-
-    const userMessage = {
-      role: "user",
-      text: message,
-    };
-
-    const updatedSessions =
-      sessions.map((session) => {
-
-        if (
-          session.id === currentChatId
-        ) {
-
-          return {
-
-            ...session,
-
-            title:
-              session.messages.length <= 1
-                ? message.slice(0, 30)
-                : session.title,
-
-            messages: [
-              ...session.messages,
-              userMessage
-            ],
-          };
-        }
-
-        return session;
-      });
-
-    setSessions(updatedSessions);
-
-    const userInput = message;
-
-    setMessage("");
-
-    setLoading(true);
+    setInput("");
 
     try {
 
-      const response = await fetch(
+      const res = await fetch(
         "/api/chat",
         {
           method: "POST",
-
           headers: {
             "Content-Type":
               "application/json",
           },
-
           body: JSON.stringify({
-            message: userInput,
+            message: currentInput,
           }),
         }
       );
 
       const data =
-        await response.json();
+        await res.json();
 
-      setSessions((prev) =>
-        prev.map((session) => {
+      const aiMessage: Message = {
+        role: "assistant",
+        text:
+          data.response ||
+          "No response received.",
+      };
 
-          if (
-            session.id === currentChatId
-          ) {
-
-            return {
-
-              ...session,
-
-              messages: [
-                ...session.messages,
-                {
-                  role: "ai",
-                  text: data.reply,
-                }
-              ],
-            };
-          }
-
-          return session;
-        })
-      );
+      setMessages((prev) => [
+        ...prev,
+        aiMessage,
+      ]);
 
     } catch (error) {
 
-      setSessions((prev) =>
-        prev.map((session) => {
+      const aiMessage: Message = {
+        role: "assistant",
+        text:
+          "SnapLearn AI failed to respond.",
+      };
 
-          if (
-            session.id === currentChatId
-          ) {
+      setMessages((prev) => [
+        ...prev,
+        aiMessage,
+      ]);
+    }
+  };
 
-            return {
+  const handleNewChat = () => {
 
-              ...session,
+    if (messages.length > 1) {
 
-              messages: [
-                ...session.messages,
-                {
-                  role: "ai",
-                  text:
-                    "Something went wrong.",
-                }
-              ],
-            };
-          }
+      const newSession: ChatSession = {
+        id: Date.now(),
+        title:
+          messages[1]?.text.slice(0, 25) ||
+          "New Chat",
+        messages,
+      };
 
-          return session;
-        })
-      );
-
+      setSessions((prev) => [
+        newSession,
+        ...prev,
+      ]);
     }
 
-    setLoading(false);
+    setMessages([
+      {
+        role: "assistant",
+        text:
+          "Hello 👋 How can I help you today?",
+      },
+    ]);
+  };
+
+  const handleDeleteChat = () => {
+
+    setMessages([
+      {
+        role: "assistant",
+        text:
+          "Hello 👋 How can I help you today?",
+      },
+    ]);
   };
 
   return (
-    <div className="flex gap-6">
+    <main className="min-h-screen bg-black text-white flex">
 
-      {/* SIDEBAR */}
-      <div className="hidden md:flex flex-col w-72 bg-zinc-950 border-r border-zinc-800 min-h-screen p-4 gap-4">
+      {/* Sidebar */}
+      <aside className="w-[290px] border-r border-zinc-800 p-6 flex flex-col">
+
+        <h1 className="text-5xl font-extrabold text-cyan-400">
+          SnapLearn
+        </h1>
+
+        <div className="mt-10 space-y-4">
+
+          <button className="w-full flex items-center gap-3 bg-zinc-900 hover:bg-zinc-800 transition-all p-5 rounded-2xl">
+            <LayoutDashboard size={22} />
+            Dashboard
+          </button>
+
+          <button className="w-full flex items-center gap-3 bg-cyan-500 text-black font-semibold p-5 rounded-2xl">
+            <BrainCircuit size={22} />
+            AI Tutor
+          </button>
+
+          <button className="w-full flex items-center gap-3 bg-zinc-900 hover:bg-zinc-800 transition-all p-5 rounded-2xl">
+            <Sparkles size={22} />
+            Creative Studio
+          </button>
+
+          <button className="w-full flex items-center gap-3 bg-zinc-900 hover:bg-zinc-800 transition-all p-5 rounded-2xl">
+            <BrainCircuit size={22} />
+            Quiz Arena
+          </button>
+
+          <button className="w-full flex items-center gap-3 bg-zinc-900 hover:bg-zinc-800 transition-all p-5 rounded-2xl">
+            <Presentation size={22} />
+            Presentations
+          </button>
+
+        </div>
 
         <button
-          onClick={createNewChat}
-
-          className="flex items-center justify-center gap-2 bg-cyan-500 hover:bg-cyan-400 transition-all text-black font-semibold p-4 rounded-2xl"
+          onClick={handleNewChat}
+          className="mt-10 w-full bg-cyan-500 hover:bg-cyan-400 transition-all text-black font-semibold py-5 rounded-2xl flex items-center justify-center gap-3"
         >
-
-          <MessageSquarePlus size={20} />
-
+          <MessageSquarePlus size={22} />
           New Chat
-
         </button>
 
-        <div className="space-y-3 overflow-y-auto">
+        <div className="mt-6 flex-1 overflow-y-auto space-y-3">
 
           {sessions.map((session) => (
 
             <button
               key={session.id}
-
               onClick={() =>
-                setCurrentChatId(
-                  session.id
+                setMessages(
+                  session.messages
                 )
               }
-
-              className={`w-full text-left p-4 rounded-2xl transition-all ${
-                currentChatId ===
-                session.id
-                  ? "bg-cyan-500 text-black"
-                  : "bg-zinc-900 hover:bg-zinc-800"
-              }`}
+              className="w-full text-left bg-zinc-900 hover:bg-zinc-800 transition-all rounded-2xl p-4"
             >
-
               {session.title}
-
             </button>
+
           ))}
 
         </div>
 
-      </div>
+      </aside>
 
-      {/* MAIN CHAT */}
-      <div className="flex-1">
+      {/* Main Chat */}
+      <section className="flex-1 flex flex-col">
 
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between px-12 pt-6">
 
           <PageHeader
             title="SnapLearn AI 🤖"
@@ -339,121 +240,87 @@ export default function ChatPage() {
           />
 
           <button
-            onClick={deleteChat}
-
-            className="flex items-center gap-2 bg-red-500 hover:bg-red-400 transition-all px-5 py-3 rounded-2xl text-white font-semibold h-fit"
+            onClick={handleDeleteChat}
+            className="bg-red-500 hover:bg-red-400 transition-all px-6 py-4 rounded-2xl flex items-center gap-3 font-semibold"
           >
-
-            <Trash2 size={18} />
-
+            <Trash2 size={20} />
             Delete Chat
-
           </button>
 
         </div>
 
-        <div className="space-y-6 mt-12 pb-40">
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto px-12 py-8 space-y-8">
 
-          {currentChat?.messages.map(
-            (msg, index) => (
+          {messages.map(
+            (message, index) => (
 
               <div
                 key={index}
-
-                className={`p-5 rounded-2xl max-w-3xl ${
-                  msg.role === "ai"
-                    ? "bg-zinc-900 border border-zinc-800"
-                    : "bg-cyan-500 text-black ml-auto"
+                className={`max-w-5xl rounded-3xl p-8 ${
+                  message.role === "user"
+                    ? "bg-cyan-500 text-black ml-auto"
+                    : "bg-zinc-900 border border-zinc-800"
                 }`}
               >
 
-                <p
-                  className={`font-semibold ${
-                    msg.role === "ai"
-                      ? "text-cyan-400"
-                      : "text-black"
-                  }`}
-                >
-                  {msg.role === "ai"
-                    ? "SnapLearn AI"
-                    : "You"}
-                </p>
+                <h3 className="font-bold text-2xl mb-4">
 
-                <div className="mt-2 prose prose-invert max-w-none leading-8">
+                  {message.role ===
+                  "user"
+                    ? "You"
+                    : "SnapLearn AI"}
+
+                </h3>
+
+                <div className="prose prose-invert max-w-none">
 
                   <ReactMarkdown>
-                    {msg.text}
+                    {message.text}
                   </ReactMarkdown>
 
                 </div>
 
               </div>
+
             )
           )}
 
-          {loading && (
-            <div className="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl max-w-3xl">
-
-              <p className="text-cyan-400 font-semibold">
-                SnapLearn AI
-              </p>
-
-              <p className="mt-2 animate-pulse text-zinc-400">
-                Typing...
-              </p>
-
-            </div>
-          )}
-
-          <div ref={bottomRef}></div>
+          <div ref={messagesEndRef} />
 
         </div>
 
-        {/* INPUT */}
-        <div className="fixed bottom-0 left-0 md:left-[18rem] right-0 bg-black border-t border-zinc-800 p-6">
+        {/* Input */}
+        <div className="border-t border-zinc-800 p-8 flex gap-5">
 
-          <div className="flex gap-4 max-w-5xl mx-auto">
+          <input
+            type="text"
+            placeholder="Ask anything safely..."
+            value={input}
+            onChange={(e) =>
+              setInput(e.target.value)
+            }
+            onKeyDown={(e) => {
 
-            <input
-              type="text"
-
-              value={message}
-
-              onChange={(e) =>
-                setMessage(
-                  e.target.value
-                )
+              if (e.key === "Enter") {
+                handleSend();
               }
 
-              onKeyDown={(e) => {
+            }}
+            className="flex-1 bg-zinc-900 border border-zinc-700 rounded-2xl px-8 py-5 outline-none text-lg"
+          />
 
-                if (
-                  e.key === "Enter"
-                ) {
-                  sendMessage();
-                }
-
-              }}
-
-              placeholder="Ask anything safely..."
-
-              className="flex-1 bg-zinc-900 border border-cyan-400 rounded-2xl p-5 outline-none"
-            />
-
-            <button
-              onClick={sendMessage}
-
-              className="bg-cyan-500 hover:bg-cyan-400 transition-all px-8 rounded-2xl text-black font-semibold"
-            >
-              Send
-            </button>
-
-          </div>
+          <button
+            onClick={handleSend}
+            className="bg-cyan-500 hover:bg-cyan-400 transition-all text-black font-semibold px-10 rounded-2xl"
+          >
+            Send
+          </button>
 
         </div>
 
-      </div>
+      </section>
 
-    </div>
+    </main>
   );
 }

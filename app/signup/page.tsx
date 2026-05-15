@@ -1,13 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 import { supabase } from "@/lib/supabase";
 
-export default function LoginPage() {
-
-  const router = useRouter();
+export default function SignupPage() {
 
   const [email, setEmail] =
     useState("");
@@ -21,12 +18,12 @@ export default function LoginPage() {
   const [message, setMessage] =
     useState("");
 
-  const handleLogin = async () => {
+  const handleSignup = async () => {
 
     setLoading(true);
 
     const { error } =
-      await supabase.auth.signInWithPassword({
+      await supabase.auth.signUp({
         email,
         password,
       });
@@ -37,7 +34,9 @@ export default function LoginPage() {
 
     } else {
 
-      router.push("/dashboard");
+      setMessage(
+        "Signup successful! Check your email."
+      );
 
     }
 
@@ -50,11 +49,11 @@ export default function LoginPage() {
       <div className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
 
         <h1 className="text-4xl font-bold text-cyan-400">
-          Welcome Back
+          Create Account
         </h1>
 
         <p className="mt-3 text-zinc-400">
-          Login to SnapLearn AI.
+          Join SnapLearn AI today.
         </p>
 
         <div className="mt-8 space-y-5">
@@ -80,13 +79,13 @@ export default function LoginPage() {
           />
 
           <button
-            onClick={handleLogin}
+            onClick={handleSignup}
             disabled={loading}
             className="w-full bg-cyan-500 hover:bg-cyan-400 transition-all text-black font-semibold py-4 rounded-2xl"
           >
             {loading
-              ? "Logging in..."
-              : "Login"}
+              ? "Creating..."
+              : "Create Account"}
           </button>
 
           {message && (

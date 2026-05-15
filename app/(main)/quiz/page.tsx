@@ -5,76 +5,99 @@ import { useState } from "react";
 import PageHeader from "@/components/PageHeader";
 
 export default function QuizPage() {
-
-  const [selected, setSelected] = useState("");
-
-  const correctAnswer = "A";
-
   return (
-    <>
+    <main className="min-h-screen bg-black text-white p-8">
+
+      {/* HEADER */}
       <PageHeader
         title="Quiz Arena 🧠"
-        description="Test your knowledge and improve your skills."
+        description="Practice quizzes, earn XP and improve your knowledge daily."
       />
 
-      <div className="mt-12 bg-zinc-900 border border-zinc-800 rounded-3xl p-10 max-w-3xl">
+      {/* QUIZ CARDS */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
 
-        <h2 className="text-3xl font-semibold">
-          What does HTML stand for?
-        </h2>
+        {/* SCIENCE */}
+        <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 hover:border-cyan-400 transition-all">
 
-        <div className="flex flex-col gap-5 mt-8">
+          <h2 className="text-3xl font-bold text-cyan-400">
+            Science Quiz
+          </h2>
 
-          <button
-            onClick={() => setSelected("A")}
-            className={`p-5 rounded-2xl border transition-all ${
-              selected === "A"
-                ? "bg-cyan-500 text-black border-cyan-400"
-                : "bg-zinc-950 border-zinc-800 hover:border-cyan-400"
-            }`}
-          >
-            Hyper Text Markup Language
-          </button>
+          <p className="mt-4 text-zinc-400 leading-8">
+            Test your knowledge in physics,
+            chemistry and biology.
+          </p>
 
-          <button
-            onClick={() => setSelected("B")}
-            className={`p-5 rounded-2xl border transition-all ${
-              selected === "B"
-                ? "bg-cyan-500 text-black border-cyan-400"
-                : "bg-zinc-950 border-zinc-800 hover:border-cyan-400"
-            }`}
-          >
-            High Transfer Machine Language
-          </button>
-
-          <button
-            onClick={() => setSelected("C")}
-            className={`p-5 rounded-2xl border transition-all ${
-              selected === "C"
-                ? "bg-cyan-500 text-black border-cyan-400"
-                : "bg-zinc-950 border-zinc-800 hover:border-cyan-400"
-            }`}
-          >
-            Hyperlink Transfer Mark Language
+          <button className="mt-8 bg-cyan-500 hover:bg-cyan-400 transition-all px-6 py-4 rounded-2xl text-black font-semibold">
+            Start Quiz
           </button>
 
         </div>
 
-        {selected && (
-          <div
-            className={`mt-8 p-5 rounded-2xl font-semibold text-lg ${
-              selected === correctAnswer
-                ? "bg-green-500 text-black"
-                : "bg-red-500 text-black"
-            }`}
-          >
-            {selected === correctAnswer
-              ? "✅ Correct Answer!"
-              : "❌ Wrong Answer. Try Again!"}
-          </div>
-        )}
+        {/* MATH */}
+        <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 hover:border-cyan-400 transition-all">
+
+          <h2 className="text-3xl font-bold text-cyan-400">
+            Math Quiz
+          </h2>
+
+          <p className="mt-4 text-zinc-400 leading-8">
+            Improve calculations, logic
+            and problem-solving skills.
+          </p>
+
+          <button className="mt-8 bg-cyan-500 hover:bg-cyan-400 transition-all px-6 py-4 rounded-2xl text-black font-semibold">
+            Start Quiz
+          </button>
+
+        </div>
+
+        {/* HISTORY */}
+        <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 hover:border-cyan-400 transition-all">
+
+          <h2 className="text-3xl font-bold text-cyan-400">
+            History Quiz
+          </h2>
+
+          <p className="mt-4 text-zinc-400 leading-8">
+            Explore world history,
+            civilizations and important events.
+          </p>
+
+          <button className="mt-8 bg-cyan-500 hover:bg-cyan-400 transition-all px-6 py-4 rounded-2xl text-black font-semibold">
+            Start Quiz
+          </button>
+
+        </div>
 
       </div>
-    </>
+
+      {/* XP SECTION */}
+      <div className="mt-16 bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+
+        <h2 className="text-3xl font-bold text-cyan-400">
+          Your Progress 🚀
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
+
+          <div className="bg-zinc-800 rounded-2xl p-6">
+            🔥 7 Day Streak
+          </div>
+
+          <div className="bg-zinc-800 rounded-2xl p-6">
+            🧠 XP: 1240
+          </div>
+
+          <div className="bg-zinc-800 rounded-2xl p-6">
+            🏆 Rank: Explorer
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
   );
 }

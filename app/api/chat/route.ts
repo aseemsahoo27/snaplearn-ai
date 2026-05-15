@@ -1,63 +1,37 @@
-import Groq from "groq-sdk";
+import OpenAI from "openai";
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
+const openai = new OpenAI({
+  baseURL: "https://openrouter.ai/api/v1",
+  apiKey: process.env.OPENROUTER_API_KEY,
 });
 
 export async function POST(req: Request) {
-
   try {
-
     const { message } = await req.json();
 
-    const completion =
-      await groq.chat.completions.create({
+    const completion = await openai.chat.completions.create({
+      model: "openai/gpt-3.5-turbo",
+      messages: [
+        {
+          role: "user",
+          content: message,
+        },
+      ],
+    });
 
-        messages: [
-
-          {
-            role: "system",
-
-            content: `
-You are SnapLearn AI, an advanced educational AI assistant.
-
-Your job:
-- help users learn clearly
-- answer accurately
-- avoid assumptions
-- avoid hallucinations
-- say "I may be incorrect" if unsure
-- explain concepts step-by-step
-- stay modern, smart, and conversational
-- answer coding, education, sports, entertainment, and general knowledge questions carefully
-- never pretend to know real-time information unless provided
-- be concise but helpful
-`,
-          },
-
-          {
-            role: "user",
-            content: message,
-          },
-
-        ],
-
-        model: "llama-3.3-70b-versatile",
-      });
-
-    const reply =
-      completion.choices[0]?.message?.content;
+    const response =
+      completion.choices[0].message.content;
 
     return Response.json({
-      reply,
+      response,
     });
 
   } catch (error) {
-
-    console.log(error);
+    console.error(error);
 
     return Response.json({
-      reply: "AI failed to respond.",
+      response:
+        "SnapLearn AI is temporarily unavailable.",
     });
   }
 }

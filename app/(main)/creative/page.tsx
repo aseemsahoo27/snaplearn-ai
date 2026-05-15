@@ -2,63 +2,57 @@ import PageHeader from "@/components/PageHeader";
 
 export default function CreativePage() {
   return (
-    <>
+    <main className="min-h-screen bg-black text-white p-8">
+
       <PageHeader
-        title="AI Creative Tools 🎨"
-        description="Generate safe AI images and creative projects."
+        title="Creative Studio 🎨"
+        description="Generate AI images, anime art and creative projects safely."
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-16">
 
-        <div className="bg-zinc-900 p-8 rounded-3xl border border-zinc-800 hover:border-cyan-400 transition-all">
+        {/* AI IMAGE GENERATOR */}
+        <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
 
-          <h3 className="text-2xl font-semibold text-cyan-400">
-            Text to Image
-          </h3>
+          <h2 className="text-3xl font-bold text-cyan-400">
+            AI Image Generator
+          </h2>
 
           <p className="mt-4 text-zinc-400">
-            Create AI-generated images safely using prompts.
+            Create safe AI-generated educational and creative images.
           </p>
 
-          <button className="mt-6 px-5 py-3 bg-cyan-500 rounded-xl text-black font-semibold">
-            Generate
+          <input
+            type="text"
+            placeholder="Describe your image..."
+            className="w-full mt-8 bg-zinc-800 border border-zinc-700 rounded-2xl p-5 outline-none"
+          />
+
+          <button className="mt-6 bg-cyan-500 hover:bg-cyan-400 transition-all px-8 py-4 rounded-2xl text-black font-semibold">
+            Generate Image
           </button>
 
         </div>
 
-        <div className="bg-zinc-900 p-8 rounded-3xl border border-zinc-800 hover:border-cyan-400 transition-all">
+        {/* ANIME GENERATOR */}
+        <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
 
-          <h3 className="text-2xl font-semibold text-cyan-400">
-            Anime Style
-          </h3>
-
-          <p className="mt-4 text-zinc-400">
-            Turn photos into anime or cartoon styled artwork.
-          </p>
-
-          <button className="mt-6 px-5 py-3 bg-cyan-500 rounded-xl text-black font-semibold">
-            Try Now
-          </button>
-
-        </div>
-
-        <div className="bg-zinc-900 p-8 rounded-3xl border border-zinc-800 hover:border-cyan-400 transition-all">
-
-          <h3 className="text-2xl font-semibold text-cyan-400">
-            Image to Video
-          </h3>
+          <h2 className="text-3xl font-bold text-cyan-400">
+            Anime Style Generator
+          </h2>
 
           <p className="mt-4 text-zinc-400">
-            Convert images into short AI-generated videos.
+            Transform creative ideas into anime-inspired visuals safely.
           </p>
 
-          <button className="mt-6 px-5 py-3 bg-cyan-500 rounded-xl text-black font-semibold">
-            Create Video
-          </button>
+          <div className="mt-8 border-2 border-dashed border-zinc-700 rounded-3xl p-16 text-center text-zinc-500">
+            Upload Image Area
+          </div>
 
         </div>
 
       </div>
-    </>
+
+    </main>
   );
 }
