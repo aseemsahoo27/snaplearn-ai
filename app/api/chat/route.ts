@@ -10,11 +10,12 @@ export async function POST(req: Request) {
     const { message } = await req.json();
 
     const completion = await openai.chat.completions.create({
-      model: "openai/gpt-3.5-turbo",
+      model: "google/gemini-2.0-flash-exp:free",
       messages: [
         {
-          role: "user",
-          content: message,
+          role: "system",
+          content: 
+            "You are SnapLearn AI, a smart, friendly, modern AI tutor for students. Explain concepts clearly, naturally, and conversationally like ChatGPT. Avoid robotic answers, repetition, or unnecessary long definitions. Give direct, structured, human-like responses with examples when useful.",
         },
       ],
     });
