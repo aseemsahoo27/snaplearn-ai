@@ -6,11 +6,13 @@ const genAI = new GoogleGenerativeAI(
 
 export async function POST(req: Request) {
   try {
-    const { message } = await req.json();
+    const body = await req.json();
+
+    const message = body.message;
 
     if (!message) {
       return Response.json({
-        response: "Please enter a message.",
+        response: "No message provided.",
       });
     }
 
@@ -18,16 +20,20 @@ export async function POST(req: Request) {
       model: "gemini-1.5-flash",
     });
 
-    const result = await model.generateContent(message);
+    const result = await model.generateContent(
+      message
+    );
 
-    const response = result.response.text();
+    const response =
+      result.response.text();
 
     return Response.json({
       response,
     });
 
   } catch (error) {
-    console.error("Gemini Error:", error);
+
+    console.error(error);
 
     return Response.json({
       response:
