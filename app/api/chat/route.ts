@@ -33,7 +33,7 @@ export async function POST(req: Request) {
 
   } catch (error) {
 
-    console.error(error);
+    console.error("GEMINI ERROR:", error);
 
     return Response.json({
       response:
