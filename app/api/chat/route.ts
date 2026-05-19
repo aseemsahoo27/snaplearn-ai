@@ -24,16 +24,18 @@ export async function POST(req: Request) {
       message
     );
 
-    const response =
-      result.response.text();
+    const response = result.response.text();
 
     return Response.json({
       response,
     });
 
-  } catch (error) {
+  } catch (error: any) {
 
-    console.error("GEMINI ERROR:", error);
+    console.error(
+      "GEMINI ERROR:",
+      error?.message || error
+    );
 
     return Response.json({
       response:
