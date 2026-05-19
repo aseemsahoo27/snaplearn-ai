@@ -1,45 +1,49 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(
-  process.env.GEMINI_API_KEY!
-);
-
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    console.log("API HIT");
 
-    const message = body.message;
+    const { message } = await req.json();
 
     if (!message) {
       return Response.json({
-        response: "No message provided.",
+        response: "No message provided",
       });
     }
+
+    const apiKey = process.env.GEMINI_API_KEY;
+
+    console.log("API KEY EXISTS:", !!apiKey);
+
+    if (!apiKey) {
+      return Response.json({
+        response: "Gemini API key missing.",
+      });
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
 
     const model = genAI.getGenerativeModel({
       model: "gemini-1.5-flash",
     });
 
-    const result = await model.generateContent(
-      message
-    );
+    const result = await model.generateContent(message);
 
-    const response = result.response.text();
+    const text = result.response.text();
+
+    console.log("SUCCESS");
 
     return Response.json({
-      response,
+      response: text,
     });
 
   } catch (error: any) {
 
-    console.error(
-      "GEMINI ERROR:",
-      error?.message || error
-    );
+    console.error("FULL ERROR:", error);
 
     return Response.json({
-      response:
-        "SnapLearn AI is temporarily unavailable.",
+      response: "SnapLearn AI is temporarily unavailable.",
     });
   }
 }
