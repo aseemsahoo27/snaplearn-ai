@@ -78,6 +78,8 @@ export default function ChatPage() {
 
     try {
 
+      console.log("Sending request...");
+
       const res = await fetch(
         "/api/chat",
         {
@@ -92,14 +94,24 @@ export default function ChatPage() {
         }
       );
 
+      console.log(
+        "STATUS:",
+        res.status
+      );
+
       const data =
         await res.json();
+
+      console.log(
+        "DATA:",
+        data
+      );
 
       const aiMessage: Message = {
         role: "assistant",
         text:
           data.response ||
-          "No response received.",
+          "No response from AI.",
       };
 
       setMessages((prev) => [
@@ -109,10 +121,15 @@ export default function ChatPage() {
 
     } catch (error) {
 
+      console.error(
+        "FRONTEND ERROR:",
+        error
+      );
+
       const aiMessage: Message = {
         role: "assistant",
         text:
-          "SnapLearn AI failed to respond.",
+          "SnapLearn AI is temporarily unavailable.",
       };
 
       setMessages((prev) => [
