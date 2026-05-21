@@ -55,12 +55,21 @@ export async function POST(req: Request) {
     const data =
       await response.json();
 
-    console.log(data);
+    console.log(
+      JSON.stringify(
+        data,
+        null,
+        2
+      )
+    );
 
     const text =
-      data?.candidates?.[0]
-        ?.content?.parts?.[0]
-        ?.text ||
+      data.candidates?.[0]?.content
+        ?.parts?.map(
+          (part: any) =>
+            part.text
+        )
+        .join(" ") ||
       "No response.";
 
     return Response.json({
