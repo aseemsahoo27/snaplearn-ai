@@ -6,8 +6,6 @@ export async function POST(req: Request) {
 
   try {
 
-    console.log("API HIT");
-
     const body = await req.json();
 
     const message = body.message;
@@ -15,18 +13,13 @@ export async function POST(req: Request) {
     if (!message) {
 
       return Response.json({
-        response: "No message provided",
+        response: "No message provided.",
       });
 
     }
 
     const apiKey =
       process.env.GEMINI_API_KEY;
-
-    console.log(
-      "API KEY EXISTS:",
-      !!apiKey
-    );
 
     if (!apiKey) {
 
@@ -37,38 +30,46 @@ export async function POST(req: Request) {
 
     }
 
-    const genAI =
-      new GoogleGenerativeAI(
-        apiKey
-      );
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: message,
+                },
+              ],
+            },
+          ],
+        }),
+      }
+    );
 
-    const model =
-      genAI.getGenerativeModel({
-        model: "gemini-1.5-flash",
-      });
+    const data =
+      await response.json();
 
-    const result =
-      await model.generateContent(
-        message
-      );
+    console.log(data);
 
     const text =
-      result.response.text();
-
-    console.log(
-      "SUCCESS"
-    );
+      data?.candidates?.[0]
+        ?.content?.parts?.[0]
+        ?.text ||
+      "No response.";
 
     return Response.json({
       response: text,
     });
 
-  } catch (error: any) {
+  } catch (error) {
 
-    console.error(
-      "FULL ERROR:",
-      error
-    );
+    console.error(error);
 
     return Response.json({
       response:
